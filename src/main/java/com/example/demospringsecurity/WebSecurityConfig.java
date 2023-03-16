@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -19,7 +21,8 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
                         //requestMatchers로 인증 없이 로그인 없이도 들어갈 수 있는 화면 작성
-                        .requestMatchers("/", "/home").permitAll()
+                        .requestMatchers("/", "/home","/create").permitAll()
+                                //.requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                         .and()
                         //url이 들어오면 requestMatchers에서 확인한다. 그리고 여기서 걸리지 않는 url들은 인증이 필요하기에 .anyRequest().authenticated()를 타게 되고
@@ -41,6 +44,10 @@ public class WebSecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
 
 //        UserDetails는 사용자의 정보를 담는 인터페이스로
 //        getAuthorities() 계정의 권한 목록을 리턴
@@ -50,17 +57,17 @@ public class WebSecurityConfig {
 //        isAccountNonLocked() 계정의 잠김 여부 리턴
 //        isCredentialsNonExpired() 비밀번호 만료 여부 리턴
 //        isEnabled() 계정의 활성화 여부 리턴
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user =
-                User.withDefaultPasswordEncoder()
-                        .username("user")
-                        .password("password")
-                        .roles("USER")
-                        .build();
-//  name=userId, password, role을 셋팅할 수 있음.
-        return new InMemoryUserDetailsManager(user);
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        UserDetails user =
+//                User.withDefaultPasswordEncoder()
+//                        .username("user")
+//                        .password("password")
+//                        .roles("USER")
+//                        .build();
+////  name=userId, password, role을 셋팅할 수 있음.
+//        return new InMemoryUserDetailsManager(user);
+//    }
 
 //    원래 유저는 화면에서 사용자의 입력을 받거나 form이나 restApi를 통해서 데이터가 들어오면 그런 데이터만 받는 controller가 있음
 //    걔가 최초의 요청을 받아서 검증을 하고 parameter에 넣고 확인하고 유효한 데이터인지 확인하고
